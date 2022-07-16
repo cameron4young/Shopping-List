@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>Shopping list app</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://get.mavo.io/mavo.css" />
+	<script src="https://get.mavo.io/mavo.js"></script>
+	<link rel="stylesheet" href="style.css" />
+</head>
+
+<!-- You could save back to shopping.json, by using an mv-storage like https://github.com/designftw/hw4-yourname/exercise-1/shopping.json -->
+<body mv-app mv-storage="local" class="mv-autoedit" mv-init="shopping.json">
+	<div style="background-color: #EDAFB8">
+	<!-- added contrasting color scheme which highlights certain boxes and allows for easier use -->
+		<p class="header">My Stores</p>
+		<!-- Button that clears the list, improves efficiency. Added to every list. -->
+		<button mv-action="delete(storeUnique)">Clear list</button>
+		<hr>
+		<div property="storeUnique" mv-multiple mv-value="unique(store)"></div>
+		<!-- Attempted to add a <dataset> element which would allow the user to select the specific store they were at, instead of typing it in. -->
+		<p>I'm at <input type="text" property="currentStore"></p>
+	</div>
+	<div style="background-color: #F7E1D7">
+		<p class="header">Frequently bought items</p>
+		<button mv-action="delete(frequentlyBought)">Clear list</button>
+		<div property="frequentlyBought" mv-multiple mv-group mv-initial-items="0">
+			<input type="text" property="name">
+			from <span property="store">Whole Foods</span>
+
+			<button mv-action="add(frequentlyBought, item)">Add to shopping list</button>
+		</div>
+	</div>
+	<div style="background-color: #DEDBD2">
+		<p class="header">Items to buy</p>
+		<!-- Button that allows the user to display all items in the list, regardless of what store they are in -->
+		<button mv-action="delete(currentStore)">Display all items</button>
+		<button mv-action="delete(item)">Clear list</button>
+		<!-- Makes the shopping list an actual list, helps distinguish elements and allows for the user to see how many items are on their list -->
+		<ol>
+			<li property="item" mv-multiple hidden="[currentStore and !(currentStore in store)]">
+				<span property="name"></span><br>
+				Store(s): <span property="store" mv-multiple></span>
+				<br>
+				<form>
+					<!-- Made the amount optional, doesn't ask for an input unless the checkbox is clicked -->
+					<label>Add An Amount: </label>
+					<input type="checkbox" property="amount_needed">
+					<span hidden="[!amount_needed]"> 
+						<input type="text" property="amount">
+					</span>
+					<!-- Added a cost variable which keeps track of cost. Variable is optional. -->
+					<label>Add A Cost: </label>
+						<input type="checkbox" property="cost_needed">
+					<span hidden="[!cost_needed]">
+						$<input type="number" key="cost" property="cost" minimum="0">
+					</span>
+				</form>
+				<br>
+				<button mv-action="move(item, alreadyBought)">Already bought</button>
+				<br>
+				<button mv-action="add(item, frequentlyBought)">Add to frequently bought</button>
+			</li>
+		</ol>
+			<meta property="costs1" content="[get(list(item), 'cost')]">
+			<meta property="total_cost" content="[sum(costs1)]">
+			<!-- Cost feature ensures the user will not go over their limit, allows them to make sure they have enough money -->
+			<div>
+				Total: $ [total_cost - spent]
+			</div>
+	</div>
+	<div style="background-color: #B0C4B1">
+		<p class="header">Items already bought (from all stores)</p>
+		<button mv-action="delete(alreadyBought)">Clear list</button>
+		<ol>
+			<!-- Added a list that the user can add things to when they've already bought something, ensures that they have bought everything they wanted and keeps track of spending. -->
+			<li property="alreadyBought" mv-multiple>
+				<span property="name"></span> from <span property="store"></span> for $<span property="cost"></span>
+				<button mv-action="move(alreadyBought, item)">Readd to shopping list</button>
+			</li>
+		</ol>
+		<meta property="costs2" content="[get(list(alreadyBought), 'cost')]">
+		<meta property="spent" content="[sum(costs2)]">
+		<p>Total spent: $[spent]</p>
+	</div>
+</body>
+</html>
